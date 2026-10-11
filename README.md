@@ -6,7 +6,10 @@ encoder. No manufacturer binaries, JavaScript, Node.js, or WebAssembly are neede
 
 **Current limitation: uploads replace all three custom GIF slots.** Updating one
 image using local backups also rewrites all three slots. A true single-slot
-update preserving unknown images on the keyboard is unresolved and disabled.
+update preserving unknown images on the keyboard is disabled in the supported CLI.
+A controlled single-slot append into explicitly reserved space has worked;
+an experimental tracked one-update pool is available below, while safe
+reclamation remains unresolved. See [CAPABILITIES.md](CAPABILITIES.md).
 
 The independent encoder and USB client have been tested together on an RT82:
 all three included sample GIFs displayed correctly on the keyboard.
@@ -60,17 +63,52 @@ by Git. A process lock prevents concurrent updates through this checkout.
 Commands do not open windows or ask for input. To run a command in the background,
 use your normal shell or process manager. No scheduler is included.
 
+## Experimental single-slot append
+
+A controlled reserved-space update has been visually confirmed. `pool.py`
+implements that exact bounded layout: three images of at most 64 KiB each, plus
+one spare 64-KiB block. **Initialization replaces all three slots.**
+
+```sh
+.venv/bin/python pool.py init examples/slot-1.gif examples/slot-2.gif examples/slot-3-morph.gif
+.venv/bin/python pool.py append replacement.gif --slot 3
+.venv/bin/python pool.py status
+```
+
+The append writes only the replacement image and updates its slot entry; it
+sends no erase command and does not read local copies of the other images.
+There is **one append per initialization**, even if the replacement is tiny.
+Once consumed, the block is never automatically reused. Reinitialization needs
+all three desired images again. Interrupted writes disable the pool until an
+explicit reinitialization; they do not silently free the attempted allocation.
+
+Keep `state/append-pool.json`. Use only this checkout/client with this keyboard
+while a pool is active. HID identity/path and metadata checks catch some changes,
+but cannot detect every external write or a replacement device reusing the same
+path. A normal full upload through this checkout invalidates the pool. No flash
+readback/checksum is available, and larger reserve pools are not enabled because
+the device's physical capacity and erase semantics are not established.
+
 ## Other commands
 
 ```sh
 ./rt82 sync-time
+./rt82 screen-info
+./rt82 qgif-info /tmp/slot-1.qgif
 ./rt82 encode examples/slot-1.gif /tmp/slot-1.qgif
 .venv/bin/python -m unittest discover -p 'test_*.py'
 ```
 
-Encoding uses 240×136 pixels, up to 40 frames, and a constant frame rate derived
+Encoding uses 240×136 pixels, a default cap of 40 frames, and a constant frame rate derived
 from the first GIF frame's duration, matching the inspected Hub preprocessing behavior. The frame rate is clamped
 to the format's 1–128 FPS range. Pre-encoded `.qgif` files can also be supplied.
+
+The 40-frame cap is a client default, not a verified firmware limit. To encode
+a longer experimental file, use `./rt82 encode input.gif output.qgif --max-frames 1024`,
+then upload that QGIF using `replace-all`. See [CAPABILITIES.md](CAPABILITIES.md)
+for animation-length trials, single-slot findings, and live-display/DOOM research.
+Playback through all 1,024 frames of a nominal 64-second test has been visually
+confirmed on the tested RT82; the device maximum remains unknown.
 
 The independent encoder fits two RGB565 colors per 4×4 block, assigns two-bit
 pixel selectors, and writes delta bitmaps for animation. Its output need not be

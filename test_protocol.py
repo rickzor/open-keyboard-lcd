@@ -8,6 +8,13 @@ import rt82
 
 
 class ProtocolTests(unittest.TestCase):
+    def setUp(self):
+        directory = tempfile.TemporaryDirectory()
+        self.addCleanup(directory.cleanup)
+        root = patch('rt82.ROOT', Path(directory.name))
+        root.start()
+        self.addCleanup(root.stop)
+
     def save_set(self, directory):
         state = Path(directory)
         folder = state / 'set'

@@ -86,10 +86,13 @@ def encode_frames(frames, fps=10):
     return bytes(result)
 
 
-def encode_gif(source, destination):
+def encode_gif(source, destination, max_frames=40):
+    if not 1 <= max_frames <= 65535:
+        raise ValueError('max_frames must be between 1 and 65535')
     with Image.open(source) as image:
-        if getattr(image,'n_frames',1) > 40:
-            raise ValueError('RT82 animations are limited to 40 frames')
+        if getattr(image,'n_frames',1) > max_frames:
+            raise ValueError(f'Animation exceeds the configured {max_frames}-frame limit; '
+                             'this is a client limit, not a verified firmware maximum')
         delay=image.info.get('duration',100) or 100
         fps=max(1,min(128,math.floor(1000/delay+.5)))
         frames=[]
@@ -101,6 +104,53 @@ def encode_gif(source, destination):
     data=encode_frames(frames,fps)
     Path(destination).write_bytes(data)
     return data
+
+
+def inspect_qgif(data):
+    """Validate record boundaries and report storage/transport costs without decoding pixels."""
+    if len(data) < 10 or data[:4] != b'QGIF' or data[4] or not data[5] & 1:
+        raise ValueError('Unsupported QGIF header')
+    count = int.from_bytes(data[6:8], 'big')
+    if not count:
+        raise ValueError('Empty QGIF')
+    width, height = (data[8]+1)*4, (data[9]+1)*4
+    blocks = width*height//16
+    mask_bytes = (blocks+7)//8
+    offset = 10
+    record_sizes = []
+    current = [None]*blocks
+    first = None
+    for frame in range(count+1):
+        start = offset
+        mask = data[offset:offset+mask_bytes]
+        if len(mask) != mask_bytes:
+            raise ValueError('Truncated bitmap')
+        offset += mask_bytes
+        if blocks % 8 and mask[-1] & ((1 << (8-blocks % 8))-1):
+            raise ValueError('Nonzero bitmap padding')
+        for i in range(blocks):
+            if mask[i//8] & (1 << (7-i%8)):
+                block = data[offset:offset+8]
+                if len(block) != 8:
+                    raise ValueError('Truncated block')
+                current[i] = block
+                offset += 8
+            if current[i] is None:
+                raise ValueError('First frame contains missing blocks')
+        if first is None:
+            first = tuple(current)
+        record_sizes.append(offset-start)
+    if offset != len(data):
+        raise ValueError('Trailing QGIF data')
+    if tuple(current) != first:
+        raise ValueError('Invalid loop reset')
+    fps = (data[5]+1)//2
+    return {'width': width, 'height': height, 'frames': count, 'fps': fps,
+            'duration_seconds': count/fps, 'bytes': len(data),
+            'flash_blocks_64k': math.ceil(len(data)/65536),
+            'usb_payload_reports': math.ceil(len(data)/56),
+            'largest_frame_record_bytes': max(record_sizes[:-1]),
+            'loop_reset_bytes': record_sizes[-1]}
 
 
 def decode_frames(data):

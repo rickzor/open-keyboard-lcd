@@ -2,9 +2,36 @@ import tempfile
 import unittest
 from pathlib import Path
 from PIL import Image
-from qgif import encode_frames,decode_frames,encode_gif
+from qgif import encode_frames,decode_frames,encode_gif,inspect_qgif
 
 class QgifTests(unittest.TestCase):
+    def test_large_frame_count_and_storage_report(self):
+        image = Image.new('RGB', (4,4), 'red')
+        data = encode_frames([image]*1024, 16)
+        info = inspect_qgif(data)
+        self.assertEqual(data[6:8], b'\x04\x00')
+        self.assertEqual(info['frames'], 1024)
+        self.assertEqual(info['duration_seconds'], 64)
+        self.assertEqual(info['bytes'], 10+8+1025)
+        self.assertEqual(info['loop_reset_bytes'], 1)
+        for invalid in (data[:-1], data+b'\0', data[:10]+b'\0'+data[11:]):
+            with self.assertRaises(ValueError):
+                inspect_qgif(invalid)
+
+    def test_gif_frame_cap_can_be_explicitly_overridden(self):
+        from unittest.mock import patch
+        with tempfile.TemporaryDirectory() as d:
+            source = Path(d)/'long.gif'
+            dest = Path(d)/'long.qgif'
+            frames = [Image.new('RGB',(4,4),('red' if i%2 else 'blue')) for i in range(41)]
+            frames[0].save(source,save_all=True,append_images=frames[1:],duration=100)
+            with self.assertRaisesRegex(ValueError, 'client limit'):
+                encode_gif(source,dest)
+            with patch('qgif.encode_frames',return_value=b'encoded') as encode:
+                encode_gif(source,dest,max_frames=41)
+                self.assertEqual(len(encode.call_args.args[0]),41)
+            self.assertEqual(dest.read_bytes(),b'encoded')
+
     def test_hand_calculated_red_block(self):
         data=encode_frames([Image.new('RGB',(4,4),'red')],10)
         self.assertEqual(data,bytes.fromhex('514749460013000100008000f800000000000000'))
