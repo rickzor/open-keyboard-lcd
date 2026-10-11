@@ -1,0 +1,403 @@
+{
+  "date": "2026-10-11",
+  "device_model": "Epomaker RT82",
+  "scope": "Single unit; acknowledgements and table readback are not payload readback. See CAPABILITIES.md for interpretation.",
+  "trials": {
+    "eight-slots/trial.json": {
+      "status": "eight slots visually confirmed",
+      "slots": 8,
+      "before": "0004040000c841000100c84100020021e2000300c84100000000000000000000000000000000000000000000000000000000000000000000",
+      "requested_table": "0008080000c841000100c841000200c841000300c841000400c841000500c841000600c841000700c8410000000000000000000000000000",
+      "bytes": [
+        16840,
+        16840,
+        16840,
+        16840,
+        16840,
+        16840,
+        16840,
+        16840
+      ],
+      "sha256": [
+        "91549d3bb6f55d1e3638dce611e563686c48fbb7e96fabe52def6de9d70a5511",
+        "f8fd407cba62c9931ce4fde840e0d08fdeb5b0b48400b721ae127c701d010b3e",
+        "7a5c15adf44651cc8bbee4a4a88d614ef4a3f61c5852dcd17cc43ad70571b9ec",
+        "0e081236ba9469fc3424274860710b1881f3a6728c60ff8381e02cfc9deba95e",
+        "ccce10cfa7e906bbe4566b39e583ff00523c3e29e03092f9613419dc04d651e9",
+        "717477d3adcca1909fb30114683ef594d0088a38f008eba58e6508fbe9d80719",
+        "701af9050ce56e97a7e8182b7c4e0bfa8664266a9a28a33f9e224221d45f0ae5",
+        "43e50269ee7a7dd99f91b6877b5e59e3d85f2d4c5b5627807c8bf91a6fefc33a"
+      ],
+      "erase_request_count": 9,
+      "screen_info": {
+        "width": 240,
+        "height": 135,
+        "max_slots": 3,
+        "rotation": 0,
+        "image_size_field_raw": 158,
+        "image_size_field_units": "unknown; not a verified flash capacity",
+        "response_hex": "aa12000000380000aabb19191919000101010002f00087009e030000000000000000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "after": "0008080000c841000100c841000200c841000300c841000400c841000500c841000600c841000700c8410000000000000000000000000000",
+      "visual_result": "User confirms all eight labels show up"
+    },
+    "size-470601/trial.json": {
+      "status": "END 32 visually confirmed; loop and other slots not explicitly confirmed",
+      "slots": 8,
+      "before": "0008080000c841000100c841000200c841000300c841000400c841000500c841000600c841000700c8410000000000000000000000000000",
+      "requested_table": "00080f0000492e070800c841000900c841000a00c841000b00c841000c00c841000d00c841000e00c8410000000000000000000000000000",
+      "bytes": [
+        470601,
+        16840,
+        16840,
+        16840,
+        16840,
+        16840,
+        16840,
+        16840
+      ],
+      "sha256": [
+        "5ec8c5b7f87d9231915e052e9d45a78d91161e6d901f5cc55765a9e81e6ed790",
+        "f8fd407cba62c9931ce4fde840e0d08fdeb5b0b48400b721ae127c701d010b3e",
+        "7a5c15adf44651cc8bbee4a4a88d614ef4a3f61c5852dcd17cc43ad70571b9ec",
+        "0e081236ba9469fc3424274860710b1881f3a6728c60ff8381e02cfc9deba95e",
+        "ccce10cfa7e906bbe4566b39e583ff00523c3e29e03092f9613419dc04d651e9",
+        "717477d3adcca1909fb30114683ef594d0088a38f008eba58e6508fbe9d80719",
+        "701af9050ce56e97a7e8182b7c4e0bfa8664266a9a28a33f9e224221d45f0ae5",
+        "43e50269ee7a7dd99f91b6877b5e59e3d85f2d4c5b5627807c8bf91a6fefc33a"
+      ],
+      "erase_request_count": 16,
+      "starts": [
+        0,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14
+      ],
+      "animation_info": {
+        "width": 240,
+        "height": 136,
+        "frames": 32,
+        "fps": 8,
+        "duration_seconds": 4.0,
+        "bytes": 470601,
+        "flash_blocks_64k": 8,
+        "usb_payload_reports": 8404,
+        "largest_frame_record_bytes": 16575,
+        "loop_reset_bytes": 15343
+      },
+      "screen_info": {
+        "width": 240,
+        "height": 135,
+        "max_slots": 3,
+        "rotation": 0,
+        "image_size_field_raw": 158,
+        "image_size_field_units": "unknown; not a verified flash capacity",
+        "response_hex": "aa12000000380000aabb19191919000101010002f00087009e030000000000000000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "after": "00080f0000492e070800c841000900c841000a00c841000b00c841000c00c841000d00c841000e00c8410000000000000000000000000000",
+      "visual_result": "User reports reaches END 32"
+    },
+    "sixteen-slots/trial.json": {
+      "status": "partial playback; metadata boundary investigation needed",
+      "slots": 16,
+      "before": "00080f0000492e070800c841000900c841000a00c841000b00c841000c00c841000d00c841000e00c8410000000000000000000000000000",
+      "requested_table": "0010100000c841000100c841000200c841000300c841000400c841000500c841000600c841000700c841000800c841000900c841000a00c841000b00c841000c00c841000d00c841000e00c841000f00c84100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "bytes": [
+        16840,
+        16840,
+        16840,
+        16840,
+        16840,
+        16840,
+        16840,
+        16840,
+        16840,
+        16840,
+        16840,
+        16840,
+        16840,
+        16840,
+        16840,
+        16840
+      ],
+      "sha256": [
+        "d1c9b9686de7e8050be804771d0b0614d28fddfabe9185ca3f9a2ede21db0c28",
+        "bf19d52859cec2bcca9b97c098ad64876921dc3cf6ab798834dae545d9871e65",
+        "5e7812846a95eb522600470c5fdb87bd614ebd8972cc777d4809f507a9b71f82",
+        "7bedb2b7d4a4153e2390be05ee9be5ccef6e0fa8888f0d3e843910389b675566",
+        "74b1e4d5add37a08a9e34d1cc75f7be28c9f9d895b02805a050def5a2ec0027a",
+        "fd583f0feaed2055b965e006224b6f4a50fbeea1ff683d2f9e5bd6cb42d0ac2d",
+        "513a0faacdb00ced956c2d8286f8e7c02fe576ddf909dc703fbb49b2f1636b70",
+        "b05629ef4ac940bacc91307fa26bdd26ff2007c2a4fd4ded180b3549480da1aa",
+        "6be6a3c50e28655643c03b6e8fa9cd388ad2722e7a3e9bb7179357467f6116fd",
+        "746ca47dbd243ca7da1d4886eb4791f43442b6d23a658bd8a8d7410711cf8781",
+        "be1b0c1f05e5433858f8a5873dd6219059568a02c03f57a0e44c0547b883a407",
+        "d299b39f2ffe2a2c234998ee09e5a7d01ffc7d0026c5e00b3e9155f34e59db9e",
+        "18e2494050f65a288aa828c0f8b8fab1661442ffb6c646edfc2dfca3b299e450",
+        "78d2ee537bc2cd823d82852a2c5444a521baeeb19bd41763e4c8fcc5ef3a768c",
+        "63c0b3cc3a1e39c7a84c5930c73c1d010a60ae65ded8c7999c6f9e38cb9c282d",
+        "85749b4aeb5473ccc7bee152a27f8e09b2dec3b4b68ecb45fc48a661438a739a"
+      ],
+      "erase_request_count": 17,
+      "screen_info": {
+        "width": 240,
+        "height": 135,
+        "max_slots": 3,
+        "rotation": 0,
+        "image_size_field_raw": 158,
+        "image_size_field_units": "unknown; not a verified flash capacity",
+        "response_hex": "aa12000000380000aabb19191919000101010002f00087009e030000000000000000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "after": "0010100000c841000100c841000200c841000300c841000400c841000500c841000600c841000700c841000800c841000900c841000a00c8",
+      "metadata_check": "first 56 bytes only; later entries require playback confirmation",
+      "visual_result": "User reports 11 slots, then slot 1 again, then three white screens; exact total cycle count uncertain"
+    },
+    "sixteen-slots/metadata-pages.json": {
+      "expected_table": "0010100000c841000100c841000200c841000300c841000400c841000500c841000600c841000700c841000800c841000900c841000a00c841000b00c841000c00c841000d00c841000e00c841000f00c84100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "pages": [
+        {
+          "offset": 0,
+          "length": 56,
+          "response": "aa140000003800000010100000c841000100c841000200c841000300c841000400c841000500c841000600c841000700c841000800c841000900c841000a00c8",
+          "payload": "0010100000c841000100c841000200c841000300c841000400c841000500c841000600c841000700c841000800c841000900c841000a00c8",
+          "matches_expected": true
+        },
+        {
+          "offset": 56,
+          "length": 56,
+          "response": "aa1438000038000001000000aa1538000038000041000b00c841000c00c841000d00c841000e00c841000f00c841000000000000000000000000000000000000",
+          "payload": "01000000aa1538000038000041000b00c841000c00c841000d00c841000e00c841000f00c841000000000000000000000000000000000000",
+          "matches_expected": false
+        },
+        {
+          "offset": 112,
+          "length": 16,
+          "response": "aa147000001000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "payload": "00000000000000000000000040000000",
+          "matches_expected": false
+        }
+      ]
+    },
+    "sixteen-slots/commit128.json": {
+      "status": "visual failure beyond eleven distinct labels",
+      "commit_length": 128,
+      "table_hex": "0010100000c841000100c841000200c841000300c841000400c841000500c841000600c841000700c841000800c841000900c841000a00c841000b00c841000c00c841000d00c841000e00c841000f00c84100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "erase_commands": 0,
+      "image_write_commands": 0,
+      "pages": [
+        {
+          "offset": 0,
+          "response": "aa140000003800000010100000c841000100c841000200c841000300c841000400c841000500c841000600c841000700c841000800c841000900c841000a00c8",
+          "matches_expected": true
+        },
+        {
+          "offset": 56,
+          "response": "aa1438000038000001000000aa1538000038000041000b00c841000c00c841000d00c841000e00c841000f00c841000000000000000000000000000000000000",
+          "matches_expected": false
+        },
+        {
+          "offset": 112,
+          "response": "aa147000001000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "matches_expected": false
+        }
+      ],
+      "visual_result": "User reports 11 slots, then two slot 1s, then three white screens (16 positions total)"
+    },
+    "sixteen-slots/eleven-control.json": {
+      "status": "eleven distinct slots and clean wrap visually confirmed",
+      "keyboard_count": 11,
+      "lcd_count": 11,
+      "erase_commands": 0,
+      "image_write_commands": 0,
+      "before": "0010100000c841000100c841000200c841000300c841000400c841000500c841000600c841000700c841000800c841000900c841000a00c8",
+      "requested_table": "000b100000c841000100c841000200c841000300c841000400c841000500c841000600c841000700c841000800c841000900c841000a00c841000b00c841000c00c841000d00c841000e00c841000f00c84100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "after": "000b100000c841000100c841000200c841000300c841000400c841000500c841000600c841000700c841000800c841000900c841000a00c8",
+      "visual_result": "User confirmed 1 through 11 then directly back to 1"
+    },
+    "size-915034/trial.json": {
+      "status": "915034-byte animation and both guards visually confirmed",
+      "slots": 3,
+      "before": "000b100000c841000100c841000200c841000300c841000400c841000500c841000600c841000700c841000800c841000900c841000a00c8",
+      "requested_table": "00031000005af60d0e00c841000f00c841000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "bytes": [
+        915034,
+        16840,
+        16840
+      ],
+      "sha256": [
+        "b81b0c8d5d028900ec57a12163f7b014463967fd19769516fc7339689bcd7dc0",
+        "f8fd407cba62c9931ce4fde840e0d08fdeb5b0b48400b721ae127c701d010b3e",
+        "7a5c15adf44651cc8bbee4a4a88d614ef4a3f61c5852dcd17cc43ad70571b9ec"
+      ],
+      "erase_request_count": 17,
+      "starts": [
+        0,
+        14,
+        15
+      ],
+      "animation_info": {
+        "width": 240,
+        "height": 136,
+        "frames": 71,
+        "fps": 8,
+        "duration_seconds": 8.875,
+        "bytes": 915034,
+        "flash_blocks_64k": 14,
+        "usb_payload_reports": 16340,
+        "largest_frame_record_bytes": 16575,
+        "loop_reset_bytes": 15391
+      },
+      "screen_info": {
+        "width": 240,
+        "height": 135,
+        "max_slots": 3,
+        "rotation": 0,
+        "image_size_field_raw": 158,
+        "image_size_field_units": "unknown; not a verified flash capacity",
+        "response_hex": "aa12000000380000aabb19191919000101010002f00087009e030000000000000000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "after": "00031000005af60d0e00c841000f00c841000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "user_observation": "that worked but the gif says of 8 and there are only three gifs"
+    },
+    "size-128-frames/trial.json": {
+      "status": "128-changing-frame animation looping and both guards visually confirmed",
+      "slots": 3,
+      "before": "00031000005af60d0e00c841000f00c841000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "requested_table": "00031e0000a2381b1c00c841001d00c841000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "bytes": [
+        1783970,
+        16840,
+        16840
+      ],
+      "sha256": [
+        "dfc1a9c9cc696d6863b8747b2671ce31026b02fc26e4781312a112ad85a39f64",
+        "be0753d37e14cad6cc2231fdac82c32e4f3cff6cf169bd9f942ac35b9b3d1e20",
+        "0564cbc4040e1b7a062999d99c6a701ca74cd794ca4949d9a2cd21652b7c4139"
+      ],
+      "erase_request_count": 31,
+      "starts": [
+        0,
+        28,
+        29
+      ],
+      "animation_info": {
+        "width": 240,
+        "height": 136,
+        "frames": 135,
+        "fps": 8,
+        "duration_seconds": 16.875,
+        "bytes": 1783970,
+        "flash_blocks_64k": 28,
+        "usb_payload_reports": 31857,
+        "largest_frame_record_bytes": 16575,
+        "loop_reset_bytes": 15319
+      },
+      "screen_info": {
+        "width": 240,
+        "height": 135,
+        "max_slots": 3,
+        "rotation": 0,
+        "image_size_field_raw": 158,
+        "image_size_field_units": "unknown; not a verified flash capacity",
+        "response_hex": "aa12000000380000aabb19191919000101010002f00087009e030000000000000000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "after": "00031e0000a2381b1c00c841001d00c841000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "user_observation": "end 128 works",
+      "user_confirmation": "Yes, it loops and both labels work"
+    },
+    "size-256-frames/trial.json": {
+      "status": "256-changing-frame animation and both guards visually confirmed",
+      "slots": 3,
+      "before": "00031e0000a2381b1c00c841001d00c841000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "requested_table": "0003380000d27a353600c841003700c841000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "bytes": [
+        3504850,
+        16840,
+        16840
+      ],
+      "sha256": [
+        "3ceed00b1bc0e0f27e16257a15ed84a86a7defae71f8156526ad3ce9a7c7f4e2",
+        "be0753d37e14cad6cc2231fdac82c32e4f3cff6cf169bd9f942ac35b9b3d1e20",
+        "0564cbc4040e1b7a062999d99c6a701ca74cd794ca4949d9a2cd21652b7c4139"
+      ],
+      "erase_request_count": 57,
+      "starts": [
+        0,
+        54,
+        55
+      ],
+      "animation_info": {
+        "width": 240,
+        "height": 136,
+        "frames": 263,
+        "fps": 8,
+        "duration_seconds": 32.875,
+        "bytes": 3504850,
+        "flash_blocks_64k": 54,
+        "usb_payload_reports": 62587,
+        "largest_frame_record_bytes": 16575,
+        "loop_reset_bytes": 15295
+      },
+      "screen_info": {
+        "width": 240,
+        "height": 135,
+        "max_slots": 3,
+        "rotation": 0,
+        "image_size_field_raw": 158,
+        "image_size_field_units": "unknown; not a verified flash capacity",
+        "response_hex": "aa12000000380000aabb19191919000101010002f00087009e030000000000000000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "after": "0003380000d27a353600c841003700c841000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "user_confirmation": "256 works and all slots show up"
+    },
+    "size-512-frames/trial.json": {
+      "status": "512-changing-frame animation looping and both guards visually confirmed",
+      "slots": 3,
+      "before": "0003380000d27a353600c841003700c841000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "requested_table": "00036e0000524c6b6c00c841006d00c841000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "bytes": [
+        7031890,
+        16840,
+        16840
+      ],
+      "sha256": [
+        "0abcb51fca4e8c78c2054da2ed39d2ef5178177722365b086cadee4211b370bb",
+        "be0753d37e14cad6cc2231fdac82c32e4f3cff6cf169bd9f942ac35b9b3d1e20",
+        "0564cbc4040e1b7a062999d99c6a701ca74cd794ca4949d9a2cd21652b7c4139"
+      ],
+      "erase_request_count": 111,
+      "starts": [
+        0,
+        108,
+        109
+      ],
+      "animation_info": {
+        "width": 240,
+        "height": 136,
+        "frames": 519,
+        "fps": 8,
+        "duration_seconds": 64.875,
+        "bytes": 7031890,
+        "flash_blocks_64k": 108,
+        "usb_payload_reports": 125570,
+        "largest_frame_record_bytes": 16575,
+        "loop_reset_bytes": 15319
+      },
+      "screen_info": {
+        "width": 240,
+        "height": 135,
+        "max_slots": 3,
+        "rotation": 0,
+        "image_size_field_raw": 158,
+        "image_size_field_units": "unknown; not a verified flash capacity",
+        "response_hex": "aa12000000380000aabb19191919000101010002f00087009e030000000000000000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "after": "00036e0000524c6b6c00c841006d00c841000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "user_confirmation": "yes it does, everything works"
+    }
+  }
+}

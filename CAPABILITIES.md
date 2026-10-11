@@ -3,6 +3,19 @@
 Measurements below refer to the connected RT82 tested on 2026-10-11. An accepted
 USB transfer and matching metadata do not establish correct playback.
 
+## Current findings
+
+- **7,031,890-byte QGIF**: END 512, clean looping, and both following guard
+  images confirmed. Maximum capacity remains unknown.
+- **11 distinct static slots** cycle correctly. More than ten complete metadata
+  entries require unresolved paging; 16 selections produced broken/duplicate
+  images. Eleven is not a proven firmware limit.
+- **1,024 frames** played through in an earlier, smaller-file trial.
+- One reserved-block append and narrow first-block erase/replacement work.
+  General nonzero-block targeted erasure remains unresolved.
+- No live RAM framebuffer/streaming command found; interactive DOOM remains
+  research work. The normal CLI still operates on three-image sets.
+
 ## Single-slot replacement
 
 The independent encoder changes the image format implementation, not the LCD's
@@ -135,8 +148,8 @@ use of the existing GIF playback path; it would not be interactive gameplay.
 
 Third-party format documents found during research contain header layouts that
 contradict our generated and hardware-tested files. Their capacity and framebuffer
-claims have not been adopted as device facts. No unknown-opcode sweep, firmware
-flash, or high-address capacity probing was performed.
+claims have not been adopted as device facts. No unknown-opcode sweep or firmware flash was performed. The capacity trials
+below progressively expanded image-storage writes, using disposable images.
 
 ## Static spare-block control
 
@@ -366,8 +379,87 @@ not a maximum. The screen-info field reporting 3 cannot be treated as a hard
 playback limit. The normal CLI still accepts three images; this four-image
 experiment used a separate bounded harness and has not generalized the CLI.
 
-Current experimental device state: four valid independent labels with metadata
+State after the four-image trial: four valid independent labels with metadata
 header `00 04 04`. Slot 4 no longer shares slot 2's storage. The default cached
 three-image manifest remains stale; it must not be used as an automatic restore
 of this four-image set. The experiment retained all four encoded payloads and
 a table/hash log separately. Nonzero-block targeted erasure remains unresolved.
+
+## Expanded slot and size limits (2026-10-11)
+
+### Confirmed playback, not maximum specifications
+
+| Encoded QGIF bytes | Total frames | FPS | Nominal loop | Following guard blocks | Visual result |
+| ---: | ---: | ---: | ---: | --- | --- |
+| 470,601 | 32 | 8 | 4 s | 8–14 | END 32 observed; looping and guards not explicitly confirmed |
+| 915,034 | 71 | 8 | 8.875 s | 14, 15 | End marker and both guards worked |
+| 1,783,970 | 135 | 8 | 16.875 s | 28, 29 | End marker, clean loop, both guards confirmed |
+| 3,504,850 | 263 | 8 | 32.875 s | 54, 55 | User confirmed “256 works and all slots show up” after end/loop/guard check |
+| **7,031,890** | **519** | **8** | **64.875 s** | **108, 109** | **END 512, clean loop, both guards explicitly confirmed** |
+
+The latest fully observed encoded-size lower bound is **7,031,890 bytes**
+(7.03 decimal MB, about 6.71 MiB) for one animation. This is the size of the
+QGIF stream sent to the device, not the input GIF file. The earlier 1,024-frame
+trial remains a separate frame-count lower bound. Neither maximum size nor
+maximum duration nor maximum frame count is established.
+
+The largest trial used image starts 0, 108, 109, with two 16,840-byte guards,
+metadata `00 03 6e` (3 images, 110 allocation blocks), and a full-set erase
+request of 111. Its first metadata page was:
+
+```text
+00036e0000524c6b6c00c841006d00c841000000000000000000000000000000000000000000000000000000000000000000000000000000
+```
+
+All three slots remained readable and the large animation looped. This tests
+storage into logical block 109; it does not measure physical chip capacity or
+prove every byte of the advertised allocation is usable. The screen-info raw
+size field remains 158 with unknown units. The screen-info slot field remains
+3 despite confirmed playback of more slots.
+
+The size tests use changing backgrounds and pixel stripes. From END 64 onward,
+the end marker appears only at the final changing frame, followed by seven
+identical frames to hold it for about a second. END 32 appeared in the last
+quarter, so that earlier observation is weaker. The initial guard labels said
+“OF 8” after reducing to three images; the 128/256/512 trials corrected them to
+“2 OF 3” and “3 OF 3.” A 320-frame intermediate file was generated but never
+uploaded; the user requested doubling directly from 256 to 512 instead.
+
+`make_capacity_test.py` regenerates these larger test patterns without accessing
+USB. `capacity-evidence.json` retains payload hashes, sizes, table requests,
+readback, and visual observations. Font rasterization affects exact encoded
+bytes: the recorded files used macOS Arial Bold. Do not infer identical bytes
+from another system's font or Pillow version.
+
+### Slot-count results and metadata boundary
+
+- Four independently stored images were confirmed as described above.
+- Eight distinct static images at blocks 0–7 were confirmed, with both counts
+  set to 8, allocation 8, and erase request 9.
+- Sixteen distinct 16,840-byte images were written at blocks 0–15, both counts
+  16 and allocation 16, erase request 17. Actual playback was eleven numbered
+  labels, two duplicate slot-1 labels, then three white screens: 16 selections,
+  but not 16 valid independently selected images.
+- Changing only the two selection counts to 11 produced SLOT 1 through SLOT 11
+  and a direct wrap to SLOT 1, confirmed. No erase or image writes accompanied
+  this control. Its image captions still said “OF 16,” since only metadata changed.
+
+**Eleven distinct static images is the observed count lower bound; it is not a
+proven hardware maximum or general arbitrary-payload support for eleven slots.**
+The known first configuration payload is 56 bytes. A three-byte prefix leaves
+room for ten complete five-byte entries and three bytes of the eleventh. The
+remaining two length bytes of entry 11 lie in the unresolved next page.
+
+The 16-entry trial sent the full 128-byte table with command 0x15 at offsets
+0, 56, 112. Offset-zero readback matched. Reads at offsets 56 and 112 did not
+match the intended payload; the offset-56 response included an embedded 0x15
+packet header. This may reflect unsupported paging or another buffer-layout
+detail; it is not a decoded firmware memory map. A metadata-only retry changing
+0x16's commit length from 56 to 128 did not fix readback or the bad positions.
+Exact responses and requested tables are retained in `capacity-evidence.json`.
+
+The next slot-count work is to establish metadata paging semantics, not declare
+11 the device limit. The production CLI still replaces exactly three images;
+these larger-count tests used bounded research scripts. Do not use cached
+three-image manifests after independent hardware experiments without first
+establishing a new complete set.

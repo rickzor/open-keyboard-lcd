@@ -19,6 +19,25 @@ all three original sample GIFs displayed correctly on the keyboard. A later
 controlled experiment also confirmed four independently stored GIFs, including
 `examples/slot-4.gif`. Four-image operation is not yet integrated into the CLI.
 
+## Tested limits so far
+
+Hardware tests confirmed a **7,031,890-byte encoded QGIF** with END 512,
+clean looping, and two other working images, plus an earlier **1,024-frame**
+animation. Eleven distinct static images cycled correctly in a separate test;
+metadata paging prevents reliable higher-count operation so far. These are
+observed lower bounds, not maximum device specifications. The normal CLI
+still accepts three images. See [CAPABILITIES.md](CAPABILITIES.md),
+[PROTOCOL.md](PROTOCOL.md), and [TODO.md](TODO.md) for evidence and next steps.
+
+Generate a capacity test locally (no USB writes):
+
+```sh
+.venv/bin/python make_capacity_test.py --frames 512 --output /tmp/rt82-size-512
+```
+
+This writes a source GIF, encoded QGIF, and inspection JSON. Large files take
+several minutes to transfer; input GIF size differs from encoded device size.
+
 ## Setup
 
 Developed on macOS with Python 3.13. The implementation uses POSIX file

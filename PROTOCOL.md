@@ -9,7 +9,7 @@ These are implementation notes from one RT82, not a firmware specification.
 - Activate the LCD: keyboard `AA E2`, then five `AA E0` handshakes. The `E2`
   query can return an `E0` response on the tested device.
 - Configuration read: `14`, offset zero, length 56. Payload byte 1 is GIF count;
-  byte 2 is total 64-KiB blocks. Five-byte entries begin at byte 3 (four entries have been hardware-tested):
+  byte 2 is total 64-KiB blocks. Five-byte entries begin at byte 3 (see the metadata paging limitation below):
   start block, reserved byte, then 24-bit little-endian image length.
 - Full-set sequence: `1B`; keyboard `E3` with GIF count; `14`; `15` at offsets
   0/56/112 with lengths 56/56/16; `16`; `18`; image chunks via `19`; `1A`.
@@ -28,7 +28,8 @@ reach. With that count set to 1, requested indices 2 and 3 affected the image at
 block 0 while higher-block images survived. Request count 7 also left images at
 blocks 3 and 6 intact. A changed-content replacement and repeat erase/write cycle
 at block 0 preserved adjacent images at blocks 1 and 2 (visually confirmed).
-The tested replacements were 16,840 bytes with unchanged slot entries and lengths.
+Tested replacements include 16,840-byte labels and a later 57,889-byte
+animation with the first entry length changed.
 See [CAPABILITIES.md](CAPABILITIES.md) for the exact sequence and controls.
 
 This supports allocation-driven prefix erasure; it is not an exact firmware
@@ -57,3 +58,19 @@ integration; see CAPABILITIES.md for the experimental initialization sequence.
 
 The keyboard source inspected exposed LCD interface declarations but not the LCD
 controller's flash command handler. No firmware changes are performed here.
+
+## Expanded count and capacity observations
+
+Both keyboard E3's final count byte and LCD metadata byte 1 were changed for
+count trials. Eight distinct images and eleven static labels were confirmed.
+The first 56-byte page contains ten complete entries plus three bytes of entry
+11. Sixteen selections produced eleven distinct labels, two duplicate slot-1
+images, and three white screens. Sending entries through 0x15 offsets 56/112
+and increasing 0x16 commit length to 128 did not fix later-page readback.
+Treat this as unresolved paging, not a proven eleven-slot firmware maximum.
+
+A 7,031,890-byte QGIF at block 0 plus guards at blocks 108/109 played correctly,
+including END 512 and clean looping. Metadata count/allocation was 3/110 and
+the full-set erase request count was 111. This establishes tested playback,
+not physical capacity. `capacity-evidence.json` contains exact tables, hashes,
+responses and observations; CAPABILITIES.md explains the limits of the evidence.

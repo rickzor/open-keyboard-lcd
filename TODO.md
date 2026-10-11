@@ -1,7 +1,7 @@
 # Next work
 
 Hardware findings and limitations are in [CAPABILITIES.md](CAPABILITIES.md).
-Four independent images and repeated block-0 replacement are visually confirmed;
+Eleven distinct static images and repeated block-0 replacement are visually confirmed;
 nonzero-block targeted erasure is not.
 
 - [ ] **Establish erasure of slot 2's actual storage without damaging neighbors.**
@@ -29,7 +29,17 @@ nonzero-block targeted erasure is not.
   not a hard three-image playback limit on the tested unit. Keep USB
   acknowledgements and table readback separate from payload validation.
 - [ ] **Continue capacity and live-display research.**
-  The confirmed single-animation lower bound is 1,024 frames / 315,369 bytes
-  (64 seconds nominal at 16 FPS). Maximum capacity and a RAM framebuffer or
+  Independently confirmed lower bounds are 1,024 frames (315,369 bytes,
+  64 seconds nominal at 16 FPS) and 7,031,890 bytes (519 frames at 8 FPS).
+  These are separate
+  frame-count and encoded-size results. Maximum capacity and a RAM framebuffer or
   streaming command remain unknown. Interactive DOOM requires a verified live
   display path; repeated flash updates are not a substitute.
+
+- [ ] **Resolve the metadata boundary before increasing supported slot counts.**
+  Eleven static labels cycle cleanly, but entry 11 crosses the first 56-byte
+  payload boundary. Sixteen selections produced eleven distinct labels, two
+  duplicate slot-1 images, and three white screens. Later metadata pages did
+  not read back as intended; increasing commit length to 128 did not fix it.
+  Determine paging semantics with controlled metadata-only trials before
+  claiming a hardware maximum or supporting arbitrary images past entry 10.
