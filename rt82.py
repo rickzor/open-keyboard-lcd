@@ -13,7 +13,7 @@ import sys
 import time
 
 import hid
-from qgif import encode_gif
+from qgif import encode_gif, inspect_qgif
 
 ROOT = Path(__file__).resolve().parent
 VID, PID = 14000, 12451
@@ -39,6 +39,8 @@ class Transport:
                    if d['usage_page'] == usage_page and (usage is None or d['usage'] == usage)]
         if len(devices) != 1:
             raise RuntimeError(f'Expected one HID interface {vendor:04x}:{product:04x}; found {len(devices)}')
+        identity = repr((devices[0]['path'], devices[0].get('serial_number')))
+        self.identity = hashlib.sha256(identity.encode()).hexdigest()
         if sys.platform == 'darwin':
             # Never seize the keyboard from the OS or Chrome.
             ctypes.CDLL(hid.__file__).hid_darwin_set_open_exclusive(0)
@@ -115,9 +117,25 @@ class Keyboard:
         response = self.command(0x14, 0, 0, 0, 56)
         return response[8:64]
 
-    def upload_set(self, images):
+    def screen_info(self):
+        response = self.command(0x12, 0, 0, 0, 56)
+        width = int.from_bytes(response[20:22], 'little')
+        height = int.from_bytes(response[22:24], 'little')
+        rotation = response[26]
+        if rotation in (1, 3):
+            width, height = height, width
+        return {'width': width, 'height': height, 'max_slots': response[25],
+                'rotation': rotation, 'image_size_field_raw': response[24],
+                'image_size_field_units': 'unknown; not a verified flash capacity',
+                'response_hex': response.hex()}
+
+    def upload_set(self, images, reserve_blocks=0):
         """Replace all three display slots using Hub's batch-upload sequence."""
-        table, starts, erase_blocks = plan_set(images)
+        table, starts, erase_blocks = plan_set(images, reserve_blocks)
+        pool_path = ROOT / 'state' / 'append-pool.json'
+        if not reserve_blocks and pool_path.exists():
+            from pool import save_ledger
+            save_ledger(pool_path, {'version': 1, 'status': 'invalidated-by-full-upload'})
         self.command(0x1B, 0, 0, 0, 56)
         self.keyboard_command(0xE3, bytes([0, 0, 0, 1, 0, 0, 3]))
         time.sleep(0.1)
@@ -145,7 +163,9 @@ class Keyboard:
         self.via.close()
 
 
-def plan_set(images):
+def plan_set(images, reserve_blocks=0):
+    if reserve_blocks not in (0, 1):
+        raise ValueError('Only the tested one-block reservation is supported')
     if len(images) != 3 or any(not image.startswith(b'QGIF') for image in images):
         raise ValueError('Exactly three encoded QGIF images are required')
     table, starts, block = bytearray(56), [], 0
@@ -157,6 +177,9 @@ def plan_set(images):
         block += math.ceil(len(image) / 65536)
         if block + 1 > 255:
             raise ValueError('Complete image set exceeds the protocol block limit')
+    if reserve_blocks and (starts != [0, 1, 2] or block != 3):
+        raise ValueError('Reserved-space mode requires three images of at most 64 KiB each')
+    block += reserve_blocks
     table[:3] = bytes([0, 3, block])
     return bytes(table), starts, block + 1
 
@@ -181,10 +204,15 @@ def main():
     sub = parser.add_subparsers(dest='command', required=True)
     sub.add_parser('devices')
     sub.add_parser('probe', help='Activate LCD and read slot metadata; does not erase images')
+    sub.add_parser('screen-info', help='Read LCD dimensions and raw device information without flash writes')
     sub.add_parser('sync-time')
     enc = sub.add_parser('encode')
     enc.add_argument('source', type=Path)
     enc.add_argument('destination', type=Path)
+    enc.add_argument('--max-frames', type=int, default=40,
+                     help='Encoding cap (default 40); higher values are experimental on hardware')
+    stats = sub.add_parser('qgif-info', help='Validate a QGIF and show duration/storage costs without USB access')
+    stats.add_argument('source', type=Path)
     upload = sub.add_parser('upload', help='True single-slot update (blocked pending protocol verification)')
     upload.add_argument('source', type=Path)
     upload.add_argument('--slot', type=int, choices=[1, 2, 3], required=True)
@@ -199,6 +227,9 @@ def main():
     cached.add_argument('--state', type=Path, default=ROOT / 'state')
     cached.add_argument('--if-changed', action='store_true')
     args = parser.parse_args()
+    if args.command == 'qgif-info':
+        print(json.dumps(inspect_qgif(args.source.read_bytes()), indent=2))
+        return
     if args.command == 'upload':
         raise RuntimeError('True single-slot updates are not yet verified on this firmware. '
                            'Refusing to erase or rewrite other slots. No USB commands were sent.')
@@ -215,7 +246,7 @@ def main():
                 print({key: value for key, value in device.items() if key != 'path'})
         return
     if args.command == 'encode':
-        data = encode(args.source, args.destination)
+        data = encode_gif(args.source, args.destination, max_frames=args.max_frames)
         print(f'Encoded {len(data)} bytes')
         return
     # A process lock prevents overlapping hourly/manual USB transactions.
@@ -251,7 +282,10 @@ def main():
         keyboard = Keyboard()
         try:
             keyboard.activate()
-            if args.command == 'probe':
+            if args.command == 'screen-info':
+                print(json.dumps(keyboard.screen_info(), indent=2))
+                keyboard.command(0x11)
+            elif args.command == 'probe':
                 table = keyboard.inspect()
                 print(json.dumps({'table_hex': table.hex(), 'slots': [
                     {'slot': i+1, 'block': table[3+i*5], 'bytes': int.from_bytes(table[5+i*5:8+i*5], 'little')}
