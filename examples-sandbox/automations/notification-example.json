@@ -1,0 +1,12 @@
+{
+  "id": "build-42-complete",
+  "source": "My automation",
+  "template": "success",
+  "title": "Build complete",
+  "message": "All checks passed. Ready to review.",
+  "duration": 20,
+  "ttl": 300,
+  "priority": 5,
+  "animate": true,
+  "theme": {"accent": "#78E5BB"}
+}

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0"><dict>
+<key>CFBundleIdentifier</key><string>org.open-keyboard-lcd.calendar-reader</string>
+<key>CFBundleName</key><string>Keyboard LCD Calendar Reader</string>
+<key>NSCalendarsFullAccessUsageDescription</key><string>Read upcoming meetings to show a one-minute reminder on your keyboard display.</string>
+</dict></plist>

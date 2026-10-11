@@ -130,14 +130,14 @@ class Keyboard:
                 'response_hex': response.hex()}
 
     def upload_set(self, images, reserve_blocks=0):
-        """Replace all three display slots using Hub's batch-upload sequence."""
+        """Replace the complete one-to-three-image display set using Hub's batch-upload sequence."""
         table, starts, erase_blocks = plan_set(images, reserve_blocks)
         pool_path = ROOT / 'state' / 'append-pool.json'
         if not reserve_blocks and pool_path.exists():
             from pool import save_ledger
             save_ledger(pool_path, {'version': 1, 'status': 'invalidated-by-full-upload'})
         self.command(0x1B, 0, 0, 0, 56)
-        self.keyboard_command(0xE3, bytes([0, 0, 0, 1, 0, 0, 3]))
+        self.keyboard_command(0xE3, bytes([0, 0, 0, 1, 0, 0, len(images)]))
         time.sleep(0.1)
         self.command(0x14, 0, 0, 0, 56)
         self.command(0x15, 0, 0, 0, 56, data=table)
@@ -166,8 +166,8 @@ class Keyboard:
 def plan_set(images, reserve_blocks=0):
     if reserve_blocks not in (0, 1):
         raise ValueError('Only the tested one-block reservation is supported')
-    if len(images) != 3 or any(not image.startswith(b'QGIF') for image in images):
-        raise ValueError('Exactly three encoded QGIF images are required')
+    if not 1 <= len(images) <= 3 or any(not image.startswith(b'QGIF') for image in images):
+        raise ValueError('One to three encoded QGIF images are required')
     table, starts, block = bytearray(56), [], 0
     for i, image in enumerate(images):
         if len(image) >= 1 << 24:
@@ -180,7 +180,7 @@ def plan_set(images, reserve_blocks=0):
     if reserve_blocks and (starts != [0, 1, 2] or block != 3):
         raise ValueError('Reserved-space mode requires three images of at most 64 KiB each')
     block += reserve_blocks
-    table[:3] = bytes([0, 3, block])
+    table[:3] = bytes([0, len(images), block])
     return bytes(table), starts, block + 1
 
 
@@ -189,7 +189,10 @@ def load_current_set(state):
     manifest = json.loads((folder / 'manifest.json').read_text())
     if manifest.get('status') != 'acknowledged-and-metadata-verified':
         raise RuntimeError('The saved set was not successfully uploaded; use replace-all to establish a complete set')
-    sources = [folder / f'slot-{slot}.qgif' for slot in (1, 2, 3)]
+    count = len(manifest.get('sha256', []))
+    if count not in (1, 2, 3):
+        raise RuntimeError('Invalid saved image count')
+    sources = [folder / f'slot-{slot}.qgif' for slot in range(1, count + 1)]
     images = [source.read_bytes() for source in sources]
     if [hashlib.sha256(data).hexdigest() for data in images] != manifest.get('sha256'):
         raise RuntimeError('Saved image backup is missing or corrupt; refusing to overwrite the keyboard')
@@ -218,8 +221,8 @@ def main():
     upload.add_argument('--slot', type=int, choices=[1, 2, 3], required=True)
     upload.add_argument('--state', type=Path, default=ROOT / 'state')
     upload.add_argument('--if-changed', action='store_true')
-    batch = sub.add_parser('replace-all', help='Replace all three LCD slots and retain local QGIF backups')
-    batch.add_argument('sources', type=Path, nargs=3, metavar='GIF')
+    batch = sub.add_parser('replace-all', help='Replace the complete LCD set with one to three images and retain backups')
+    batch.add_argument('sources', type=Path, nargs='+', metavar='GIF')
     batch.add_argument('--state', type=Path, default=ROOT / 'state')
     cached = sub.add_parser('update-cached-set', help='Explicitly rewrite ALL slots using local backups')
     cached.add_argument('source', type=Path)
@@ -260,8 +263,12 @@ def main():
         previous_manifest = None
         if args.command == 'update-cached-set':
             args.sources, previous_manifest = load_current_set(args.state)
+            if args.slot > len(args.sources):
+                raise ValueError('Requested slot is absent from the saved set')
             args.sources[args.slot - 1] = args.source
         if args.command in ('replace-all', 'update-cached-set'):
+            if not 1 <= len(args.sources) <= 3:
+                raise ValueError('Supply one to three images')
             transaction = args.state / 'sets' / str(time.time_ns())
             transaction.mkdir(parents=True)
             images = []
@@ -296,7 +303,7 @@ def main():
             elif args.command in ('replace-all', 'update-cached-set'):
                 before = keyboard.inspect()
                 (transaction / 'table-before.bin').write_bytes(before)
-                if previous_manifest and before[:18].hex() != previous_manifest['table_hex'][:36]:
+                if previous_manifest and before.hex() != previous_manifest['table_hex']:
                     keyboard.command(0x11)
                     raise RuntimeError('Keyboard slot metadata differs from the saved set; refusing an automatic update')
                 manifest['status'] = 'uploading'
@@ -308,14 +315,14 @@ def main():
                 actual = keyboard.inspect()
                 keyboard.command(0x11)
                 (transaction / 'table-after.bin').write_bytes(actual)
-                if actual[:18] != expected[:18]:
+                if actual != expected:
                     raise RuntimeError('Slot metadata did not match the complete uploaded set')
                 manifest['status'] = 'acknowledged-and-metadata-verified'
                 (transaction / 'manifest.json').write_text(json.dumps(manifest, indent=2))
                 pending = args.state / 'current-set.tmp'
                 pending.write_text(str(transaction.resolve()))
                 pending.replace(args.state / 'current-set.txt')
-                print('All three uploads acknowledged; slot metadata verified. Visual confirmation still required.', flush=True)
+                print(f'{len(images)} image uploads acknowledged; metadata verified. Visual confirmation still required.', flush=True)
         finally:
             keyboard.close()
 

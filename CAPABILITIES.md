@@ -14,7 +14,8 @@ USB transfer and matching metadata do not establish correct playback.
 - One reserved-block append and narrow first-block erase/replacement work.
   General nonzero-block targeted erasure remains unresolved.
 - No live RAM framebuffer/streaming command found; interactive DOOM remains
-  research work. The normal CLI still operates on three-image sets.
+  research work. The CLI now accepts one to three images; the smaller-count paths have
+  automated coverage and still need new visual hardware confirmation.
 
 ## Single-slot replacement
 
@@ -376,7 +377,7 @@ a new green slot-4 label was encoded locally. Payload sizes were 16,840, 16,840,
 This establishes four independently stored and selectable images on this unit,
 not merely four pointers aliasing fewer images. Four is a tested lower bound,
 not a maximum. The screen-info field reporting 3 cannot be treated as a hard
-playback limit. The normal CLI still accepts three images; this four-image
+playback limit. The normal CLI accepts one to three images; this four-image
 experiment used a separate bounded harness and has not generalized the CLI.
 
 State after the four-image trial: four valid independent labels with metadata
@@ -459,7 +460,7 @@ detail; it is not a decoded firmware memory map. A metadata-only retry changing
 Exact responses and requested tables are retained in `capacity-evidence.json`.
 
 The next slot-count work is to establish metadata paging semantics, not declare
-11 the device limit. The production CLI still replaces exactly three images;
+11 the device limit. The CLI now accepts one to three images;
 these larger-count tests used bounded research scripts. Do not use cached
 three-image manifests after independent hardware experiments without first
 establishing a new complete set.

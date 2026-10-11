@@ -1,0 +1,12 @@
+{
+  "weather": true,
+  "calendar": true,
+  "giphy": true,
+  "location": "San Francisco, CA",
+  "latitude": 37.7749,
+  "longitude": -122.4194,
+  "units": "fahrenheit",
+  "show_meeting_titles": false,
+  "giphy_tag": "cute animals",
+  "notifications": true
+}

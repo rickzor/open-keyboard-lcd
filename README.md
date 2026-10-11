@@ -4,8 +4,10 @@ Upload GIFs to an Epomaker RT82 keyboard directly over USB, without Chrome,
 WebHID binding dialogs, or a running website. GIF conversion runs locally using an independently implemented Python QGIF
 encoder. No manufacturer binaries, JavaScript, Node.js, or WebAssembly are needed. Commands can run unattended in the background.
 
-**Current limitation: uploads replace all three custom GIF slots.** Updating one
-image using local backups also rewrites all three slots. A true single-slot
+**Uploads replace the complete set with one, two, or three images.**
+The newly added one/two-image paths have automated coverage but still need
+visual hardware confirmation. Updating one
+image using local backups also rewrites the complete saved set. A true single-slot
 update preserving unknown images on the keyboard is disabled in the supported CLI.
 A controlled single-slot append into explicitly reserved space has worked;
 an experimental tracked one-update pool is available below, while safe
@@ -25,8 +27,7 @@ Hardware tests confirmed a **7,031,890-byte encoded QGIF** with END 512,
 clean looping, and two other working images, plus an earlier **1,024-frame**
 animation. Eleven distinct static images cycled correctly in a separate test;
 metadata paging prevents reliable higher-count operation so far. These are
-observed lower bounds, not maximum device specifications. The normal CLI
-still accepts three images. See [CAPABILITIES.md](CAPABILITIES.md),
+observed lower bounds, not maximum device specifications. The normal CLI accepts one to three images. See [CAPABILITIES.md](CAPABILITIES.md),
 [PROTOCOL.md](PROTOCOL.md), and [TODO.md](TODO.md) for evidence and next steps.
 
 Generate a capacity test locally (no USB writes):
@@ -57,7 +58,15 @@ or install a scheduled job. After setup, uploads require no network connection.
 
 ## Upload from local files
 
-Replace every custom GIF with the included examples:
+Replace the complete set with one, two, or three images (this removes other
+selectable images):
+
+```sh
+./rt82 replace-all examples/slot-1.gif
+./rt82 replace-all examples/slot-1.gif examples/slot-2.gif
+```
+
+Or use the original three-image set:
 
 ```sh
 ./rt82 replace-all examples/slot-1.gif examples/slot-2.gif examples/slot-3-morph.gif
@@ -179,3 +188,17 @@ The Python QGIF encoder was written from observations of generated files, withou
 copying vendor implementation code. Pillow and hidapi are installed separately
 and retain their own licenses. This repository starts with fresh history and
 contains no manufacturer binaries or implementation code.
+
+## Sandbox examples — mostly untested
+
+These are **experimental prototypes**, not validated end-to-end features.
+See the [validation matrix](examples-sandbox/README.md) and
+[automation examples](examples-sandbox/automations/README.md) for animated weather
+(default San Francisco, every 30 minutes), local Apple Calendar alerts one
+minute before meetings with restoration, and an hourly G-rated GIPHY selection.
+GIPHY fits the original rendition to the screen width, then crops vertically. Examples
+use one managed slot, preview locally by default, and install no scheduled jobs.
+
+A [shared notification inbox](examples-sandbox/automations/NOTIFICATIONS.md) accepts
+local app/automation messages and includes customizable Slack, Calendar, success,
+warning, error, reminder, focus, and automation cards with automatic restoration.

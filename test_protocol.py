@@ -50,9 +50,28 @@ class ProtocolTests(unittest.TestCase):
         self.assertEqual(erases[0][1], (0, 0, 0, 1))
         self.assertEqual(erases[0][2]['data'], bytes([4]))
 
-    def test_full_set_rejects_missing_image(self):
+    def test_full_set_rejects_empty_set(self):
         with self.assertRaises(ValueError):
-            rt82.plan_set([b'QGIFone', b'QGIFtwo'])
+            rt82.plan_set([])
+
+    def test_one_and_two_image_sets_send_matching_counts(self):
+        for count in (1, 2):
+            images=[b'QGIF'+bytes([n])*60 for n in range(count)]
+            keyboard=object.__new__(rt82.Keyboard)
+            keyboard.command=Mock(); keyboard.keyboard_command=Mock(); keyboard.sync_time=Mock()
+            with patch('rt82.time.sleep'):
+                table=keyboard.upload_set(images)
+            self.assertEqual(table[:3],bytes([0,count,count]))
+            keyboard.keyboard_command.assert_called_once_with(0xE3,bytes([0,0,0,1,0,0,count]))
+            self.assertEqual(table[3+5*count:],bytes(56-3-5*count))
+            with tempfile.TemporaryDirectory() as directory:
+                state=Path(directory); folder=state/'set'; folder.mkdir()
+                for i,data in enumerate(images,1): (folder/f'slot-{i}.qgif').write_bytes(data)
+                manifest={'status':'acknowledged-and-metadata-verified','sha256':[hashlib.sha256(x).hexdigest() for x in images],'table_hex':table.hex()}
+                (folder/'manifest.json').write_text(json.dumps(manifest))
+                (state/'current-set.txt').write_text(str(folder))
+                paths,_=rt82.load_current_set(state)
+                self.assertEqual([p.read_bytes() for p in paths],images)
 
     def test_delayed_erase_reply_does_not_fail_first_write(self):
         transport = object.__new__(rt82.Transport)

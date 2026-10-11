@@ -46,8 +46,8 @@ image data is undamaged.
 Keyboard E3 setup count 4 and LCD metadata image count 4 enabled playback of
 four distinct payloads at blocks 0–3, visually confirmed. The fourth entry starts
 at metadata offset 18. The screen-info value 3 is not a hard playback limit on
-the tested unit. The standard CLI remains limited to three images pending
-integration; see CAPABILITIES.md for the experimental initialization sequence.
+the tested unit. The standard CLI accepts one to three images; four-image integration remains
+pending; see CAPABILITIES.md for the experimental initialization sequence.
 
 ## Sources inspected
 

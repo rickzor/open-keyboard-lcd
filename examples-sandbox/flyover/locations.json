@@ -1,0 +1,516 @@
+[
+  {
+    "name": "Himalaya - Annapurna",
+    "category": "mountain",
+    "route": [
+      [
+        28.5252473,
+        83.834529
+      ],
+      [
+        28.5606736,
+        83.8274145
+      ],
+      [
+        28.5961,
+        83.8203
+      ],
+      [
+        28.6315264,
+        83.8131855
+      ],
+      [
+        28.6669527,
+        83.806071
+      ]
+    ],
+    "labels": [
+      "HIMALAYA - ANNAPURNA",
+      "HIMALAYA - ANNAPURNA",
+      "HIMALAYA - ANNAPURNA",
+      "HIMALAYA - ANNAPURNA",
+      "HIMALAYA - ANNAPURNA"
+    ],
+    "generator": {
+      "center": [
+        28.5961,
+        83.8203
+      ],
+      "length_km": 16,
+      "bearing": 350
+    },
+    "reference_map": "https://www.openstreetmap.org/?mlat=28.5961&mlon=83.8203#map=12/28.5961/83.8203"
+  },
+  {
+    "name": "Alps - Matterhorn",
+    "category": "mountain",
+    "route": [
+      [
+        45.9280756,
+        7.7168269
+      ],
+      [
+        45.9521878,
+        7.6877134
+      ],
+      [
+        45.9763,
+        7.6586
+      ],
+      [
+        46.0004122,
+        7.6294866
+      ],
+      [
+        46.0245244,
+        7.6003731
+      ]
+    ],
+    "labels": [
+      "ALPS - MATTERHORN",
+      "ALPS - MATTERHORN",
+      "ALPS - MATTERHORN",
+      "ALPS - MATTERHORN",
+      "ALPS - MATTERHORN"
+    ],
+    "generator": {
+      "center": [
+        45.9763,
+        7.6586
+      ],
+      "length_km": 14,
+      "bearing": 320
+    },
+    "reference_map": "https://www.openstreetmap.org/?mlat=45.9763&mlon=7.6586#map=12/45.9763/7.6586"
+  },
+  {
+    "name": "Alps - Mont Blanc",
+    "category": "mountain",
+    "route": [
+      [
+        45.7774864,
+        6.7988271
+      ],
+      [
+        45.8050432,
+        6.8320135
+      ],
+      [
+        45.8326,
+        6.8652
+      ],
+      [
+        45.8601568,
+        6.8983865
+      ],
+      [
+        45.8877136,
+        6.9315729
+      ]
+    ],
+    "labels": [
+      "ALPS - MONT BLANC",
+      "ALPS - MONT BLANC",
+      "ALPS - MONT BLANC",
+      "ALPS - MONT BLANC",
+      "ALPS - MONT BLANC"
+    ],
+    "generator": {
+      "center": [
+        45.8326,
+        6.8652
+      ],
+      "length_km": 16,
+      "bearing": 40
+    },
+    "reference_map": "https://www.openstreetmap.org/?mlat=45.8326&mlon=6.8652#map=12/45.8326/6.8652"
+  },
+  {
+    "name": "Himalaya - Everest",
+    "category": "mountain",
+    "route": [
+      [
+        27.9120423,
+        86.8936508
+      ],
+      [
+        27.9500711,
+        86.9093254
+      ],
+      [
+        27.9881,
+        86.925
+      ],
+      [
+        28.0261289,
+        86.9406746
+      ],
+      [
+        28.0641577,
+        86.9563492
+      ]
+    ],
+    "labels": [
+      "HIMALAYA - EVEREST",
+      "HIMALAYA - EVEREST",
+      "HIMALAYA - EVEREST",
+      "HIMALAYA - EVEREST",
+      "HIMALAYA - EVEREST"
+    ],
+    "generator": {
+      "center": [
+        27.9881,
+        86.925
+      ],
+      "length_km": 18,
+      "bearing": 20
+    },
+    "reference_map": "https://www.openstreetmap.org/?mlat=27.9881&mlon=86.925#map=12/27.9881/86.925"
+  },
+  {
+    "name": "Karakoram - K2",
+    "category": "mountain",
+    "route": [
+      [
+        35.8058423,
+        76.5479667
+      ],
+      [
+        35.8438711,
+        76.5308833
+      ],
+      [
+        35.8819,
+        76.5138
+      ],
+      [
+        35.9199289,
+        76.4967167
+      ],
+      [
+        35.9579577,
+        76.4796333
+      ]
+    ],
+    "labels": [
+      "KARAKORAM - K2",
+      "KARAKORAM - K2",
+      "KARAKORAM - K2",
+      "KARAKORAM - K2",
+      "KARAKORAM - K2"
+    ],
+    "generator": {
+      "center": [
+        35.8819,
+        76.5138
+      ],
+      "length_km": 18,
+      "bearing": 340
+    },
+    "reference_map": "https://www.openstreetmap.org/?mlat=35.8819&mlon=76.5138#map=12/35.8819/76.5138"
+  },
+  {
+    "name": "Patagonia - Fitz Roy",
+    "category": "mountain",
+    "route": [
+      [
+        -49.3117651,
+        -72.9692904
+      ],
+      [
+        -49.2915325,
+        -73.0062452
+      ],
+      [
+        -49.2713,
+        -73.0432
+      ],
+      [
+        -49.2510675,
+        -73.0801548
+      ],
+      [
+        -49.2308349,
+        -73.1171096
+      ]
+    ],
+    "labels": [
+      "PATAGONIA - FITZ ROY",
+      "PATAGONIA - FITZ ROY",
+      "PATAGONIA - FITZ ROY",
+      "PATAGONIA - FITZ ROY",
+      "PATAGONIA - FITZ ROY"
+    ],
+    "generator": {
+      "center": [
+        -49.2713,
+        -73.0432
+      ],
+      "length_km": 14,
+      "bearing": 310
+    },
+    "reference_map": "https://www.openstreetmap.org/?mlat=-49.2713&mlon=-73.0432#map=12/-49.2713/-73.0432"
+  },
+  {
+    "name": "Patagonia - Torres del Paine",
+    "category": "mountain",
+    "route": [
+      [
+        -50.9968185,
+        -73.3568458
+      ],
+      [
+        -50.9695592,
+        -73.3818229
+      ],
+      [
+        -50.9423,
+        -73.4068
+      ],
+      [
+        -50.9150408,
+        -73.4317771
+      ],
+      [
+        -50.8877815,
+        -73.4567542
+      ]
+    ],
+    "labels": [
+      "PATAGONIA - TORRES DEL PAINE",
+      "PATAGONIA - TORRES DEL PAINE",
+      "PATAGONIA - TORRES DEL PAINE",
+      "PATAGONIA - TORRES DEL PAINE",
+      "PATAGONIA - TORRES DEL PAINE"
+    ],
+    "generator": {
+      "center": [
+        -50.9423,
+        -73.4068
+      ],
+      "length_km": 14,
+      "bearing": 330
+    },
+    "reference_map": "https://www.openstreetmap.org/?mlat=-50.9423&mlon=-73.4068#map=12/-50.9423/-73.4068"
+  },
+  {
+    "name": "Selkirks - Mount Sir Donald",
+    "category": "mountain",
+    "route": [
+      [
+        51.2945318,
+        -117.5182367
+      ],
+      [
+        51.2787937,
+        -117.4746739
+      ],
+      [
+        51.2630556,
+        -117.4311111
+      ],
+      [
+        51.2473174,
+        -117.3875483
+      ],
+      [
+        51.2315793,
+        -117.3439855
+      ]
+    ],
+    "labels": [
+      "SELKIRKS - MOUNT SIR DONALD",
+      "SELKIRKS - MOUNT SIR DONALD",
+      "SELKIRKS - MOUNT SIR DONALD",
+      "SELKIRKS - MOUNT SIR DONALD",
+      "SELKIRKS - MOUNT SIR DONALD"
+    ],
+    "generator": {
+      "center": [
+        51.26305555555555,
+        -117.43111111111112
+      ],
+      "length_km": 14,
+      "bearing": 120
+    },
+    "reference_map": "https://apps.gov.bc.ca/pub/bcgnws/names/20545.html"
+  },
+  {
+    "name": "Teton Range - Grand Teton",
+    "category": "mountain",
+    "route": [
+      [
+        43.6792039,
+        -110.7872691
+      ],
+      [
+        43.7102019,
+        -110.7948346
+      ],
+      [
+        43.7412,
+        -110.8024
+      ],
+      [
+        43.7721981,
+        -110.8099654
+      ],
+      [
+        43.8031961,
+        -110.8175309
+      ]
+    ],
+    "labels": [
+      "TETON RANGE - GRAND TETON",
+      "TETON RANGE - GRAND TETON",
+      "TETON RANGE - GRAND TETON",
+      "TETON RANGE - GRAND TETON",
+      "TETON RANGE - GRAND TETON"
+    ],
+    "generator": {
+      "center": [
+        43.7412,
+        -110.8024
+      ],
+      "length_km": 14,
+      "bearing": 350
+    },
+    "reference_map": "https://www.openstreetmap.org/?mlat=43.7412&mlon=-110.8024#map=12/43.7412/-110.8024"
+  },
+  {
+    "name": "Alaska Range - Denali",
+    "category": "mountain",
+    "route": [
+      [
+        63.0071932,
+        -151.0868262
+      ],
+      [
+        63.0383466,
+        -151.0471131
+      ],
+      [
+        63.0695,
+        -151.0074
+      ],
+      [
+        63.1006534,
+        -150.9676869
+      ],
+      [
+        63.1318068,
+        -150.9279738
+      ]
+    ],
+    "labels": [
+      "ALASKA RANGE - DENALI",
+      "ALASKA RANGE - DENALI",
+      "ALASKA RANGE - DENALI",
+      "ALASKA RANGE - DENALI",
+      "ALASKA RANGE - DENALI"
+    ],
+    "generator": {
+      "center": [
+        63.0695,
+        -151.0074
+      ],
+      "length_km": 16,
+      "bearing": 30
+    },
+    "reference_map": "https://www.openstreetmap.org/?mlat=63.0695&mlon=-151.0074#map=12/63.0695/-151.0074"
+  },
+  {
+    "name": "San Francisco",
+    "route": [
+      [
+        37.85,
+        -122.526
+      ],
+      [
+        37.82,
+        -122.478
+      ],
+      [
+        37.798,
+        -122.449
+      ],
+      [
+        37.781,
+        -122.413
+      ],
+      [
+        37.746,
+        -122.426
+      ],
+      [
+        37.686,
+        -122.436
+      ]
+    ],
+    "labels": [
+      "MARIN HEADLANDS",
+      "GOLDEN GATE",
+      "SAN FRANCISCO",
+      "CITY STREETS",
+      "SOUTHBOUND",
+      "SAN BRUNO MTN"
+    ],
+    "category": "city"
+  },
+  {
+    "name": "Seattle",
+    "route": [
+      [
+        47.649,
+        -122.357
+      ],
+      [
+        47.621,
+        -122.35
+      ],
+      [
+        47.606,
+        -122.335
+      ],
+      [
+        47.576,
+        -122.32
+      ]
+    ],
+    "labels": [
+      "QUEEN ANNE",
+      "SEATTLE CENTER",
+      "DOWNTOWN",
+      "SOUTH SEATTLE"
+    ],
+    "category": "city"
+  },
+  {
+    "name": "Cape Town",
+    "route": [
+      [
+        -33.888,
+        18.402
+      ],
+      [
+        -33.911,
+        18.417
+      ],
+      [
+        -33.936,
+        18.42
+      ],
+      [
+        -33.962,
+        18.41
+      ]
+    ],
+    "labels": [
+      "ATLANTIC COAST",
+      "CITY BOWL",
+      "TABLE MOUNTAIN",
+      "SOUTHBOUND"
+    ],
+    "category": "city"
+  }
+]
