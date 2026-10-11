@@ -9,10 +9,15 @@ image using local backups also rewrites all three slots. A true single-slot
 update preserving unknown images on the keyboard is disabled in the supported CLI.
 A controlled single-slot append into explicitly reserved space has worked;
 an experimental tracked one-update pool is available below, while safe
-reclamation remains unresolved. See [CAPABILITIES.md](CAPABILITIES.md).
+general reclamation remains unresolved. Controlled experiments now demonstrate
+repeat replacement of a 16,840-byte image at block 0 and a later
+57,889-byte animated replacement while preserving adjacent images, using a reduced metadata allocation count. This narrow sequence is not
+yet exposed in the CLI. See [CAPABILITIES.md](CAPABILITIES.md).
 
 The independent encoder and USB client have been tested together on an RT82:
-all three included sample GIFs displayed correctly on the keyboard.
+all three original sample GIFs displayed correctly on the keyboard. A later
+controlled experiment also confirmed four independently stored GIFs, including
+`examples/slot-4.gif`. Four-image operation is not yet integrated into the CLI.
 
 ## Setup
 
@@ -127,9 +132,16 @@ Controlled tests on disposable images found:
   not correctly replace the animation.
 
 The `upload --slot` command refuses before USB access. Acknowledgements and slot
-metadata do not prove that other stored GIF payloads are intact. A working
-solution needs a targeted erase operation or image readback; neither is currently
-established. See [PROTOCOL.md](PROTOCOL.md).
+metadata do not prove that other stored GIF payloads are intact. General targeted erasure and image readback remain unresolved. A narrow
+first-block erase/replacement sequence has now worked repeatedly with neighboring
+images intact; arbitrary nonzero blocks and payloads beyond the tested
+57,889-byte replacement remain unverified.
+See [PROTOCOL.md](PROTOCOL.md).
+
+## Next work
+
+See [TODO.md](TODO.md) for targeted slot-2 erase investigation, four-image CLI
+support, a guarded first-block updater, and capacity/live-display research.
 
 ## USB access
 

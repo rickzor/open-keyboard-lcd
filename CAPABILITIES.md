@@ -30,7 +30,8 @@ The normal `upload --slot` command remains disabled.
 
 After the three length tests were visually confirmed, only slot 3 was replaced
 with a 55,793-byte, 120-frame animation in block 8. The preceding full-set upload
-had erased blocks 0 through 8 and written images only into blocks 0 through 7.
+requested an erase count of 9 and wrote images only into blocks 0 through 7.
+Actual erase coverage was not established.
 This experiment sent no erase command and no image writes to slots 1 or 2.
 Their metadata entries were retained. Image transfer took 3.87 seconds (about
 14.4 KB/s); the updated slot table matched on readback. The user reported slots 1 and 2 worked and slot 3 did not. The user subsequently clarified that they were unsure what slot 3 displayed.
@@ -214,3 +215,159 @@ The client completed initialization and a slot 3 append on the keyboard with
 matching metadata. A second append was rejected before USB access because the
 ledger was exhausted. The user visually confirmed all three images were clean after this client run.
 This verifies the implemented one-append sequence on the tested RT82.
+
+## Controlled erase investigation: reusable first-block images
+
+All tests below used disposable images and visually confirmed baselines. USB
+acknowledgements and unchanged slot tables were recorded but were not treated
+as proof of playback or flash contents. Block numbers are logical 64-KiB image
+addresses. "Index" and "count" name the fields supplied by the host, not proven
+firmware interpretations.
+
+| Marker blocks | Metadata allocation count | Requested erase index / count | Observed result |
+| --- | --- | --- | --- |
+| 0, 1, 2 | 3 | 2 / 1 | All three images corrupted; no replacement writes |
+| 0, 1, 2 | 3 | No erase (same setup/finish) | All three intact |
+| 0, 3, 6 | 7 | 2 / 1 | All three images looked bad |
+| 0, 3, 6 | 1 | No erase (metadata change only) | All three intact |
+| 0, 3, 6 | 1 | 2 / 1 | Slot 1 white; slots 2 and 3 intact |
+| 0, 3, 6 | 1 | 3 / 1 | Slot 1 affected; slots 2 and 3 intact |
+| 0, 3, 6 | 1 | 3 / 7 | Slots 2 and 3 intact; slot 1 not explicitly described |
+| 0, 1, 2 | 1 | 3 / 1 | Slots 2 and 3 intact; slot 1 not explicitly described |
+
+Changing the allocation count changes the observed damage. Changing the tested
+index values or requested counts did not move damage to the surviving markers.
+This supports an allocation-driven erase beginning at the start of image storage.
+It does not establish every byte erased, all possible field interpretations,
+physical flash geometry, or a way to target a nonzero block.
+
+### Changed-content reuse and repeat cycle: visually confirmed
+
+On the adjacent layout with allocation count 1, after the index-3/count-1 erase,
+only block 0 was written with the different 16,840-byte slot 2 payload. The user
+confirmed two clean slot 2 labels and the original animated slot 3. No further
+erase or image writes to neighboring blocks occurred during that replacement.
+
+Then the same erase was issued again and only block 0 was written with the
+original 16,840-byte slot 1 payload. The user confirmed clean slot 1, slot 2,
+and animated slot 3. Thus changed-content reuse and a repeat erase/write cycle
+worked while preserving immediate neighbors. The replacement operations read
+only their respective replacement payloads, not neighboring image backups.
+
+The tested sequence retains all slot entries and lengths, sets metadata byte 2
+to 1, uses the normal setup/commit sequence, sends
+`AA 18 03 00 00 01 00 00 01 ...`, waits one second, writes the replacement with
+0x19 beginning at address zero, then uses the normal finish/time-sync sequence.
+Slot pointers were 0, 1, 2; lengths were 16,840, 16,840, and 57,889 bytes.
+The reduced allocation count stayed at 1 throughout playback and the repeat.
+Restoring that count afterward has not been tested as part of this sequence.
+
+This is a narrowly tested first-block operation, not general targeted erasure.
+Beyond the later 57,889-byte length-change trial below, all bytes of a 64-KiB block, arbitrary
+layouts, nonzero-block erasure, and behavior across power cycles remain unverified.
+It is not yet exposed as a general CLI command. The append-pool ledger was
+invalidated before these experiments; cached full-set manifests must not be
+assumed to match the current experimental metadata or payloads.
+
+### Larger first-block replacement: visually confirmed
+
+The same allocation-1/index-3/count-1 erase sequence was used to replace the
+16,840-byte block-0 label with the 57,889-byte, 24-frame slot-3 animation. Only
+the first entry's length changed; the neighboring entries and payloads were
+retained. The user confirmed both animated slot-3 screens and the static slot-2
+label worked. This extends the tested first-block replacement size and verifies
+a length change; it still does not establish the entire 64-KiB range.
+
+The next nonzero-block investigation tests the unknown leading metadata byte,
+which the inspected website sets to zero. A metadata-only change to 1 precedes
+any erase test. Treating it as an erase base is a hypothesis, not a decoded field.
+
+### Leading metadata byte: no demonstrated shift to slot 2
+
+Changing metadata byte 0 from 0 to 1 without erasure left all three images
+visually intact. With that byte held at 1, repeating index 3/count 1 erasure
+damaged one of the two animated slot-3 images; the static slot-2 image survived.
+The animated copies at blocks 0 and 2 were not individually distinguished by
+the user. This did not demonstrate shifting the erase to block 1. Rewriting
+only block 0 with its original animation, without erase or metadata changes,
+is the next isolation step.
+
+Rewriting only block 0 restored all three images, visually confirmed. This
+localizes recoverable image damage to block 0 in the leading-byte-1 test; byte 0
+did not shift erasure to block 1 under these conditions. Next, the erase address
+is encoded as little-endian byte address 0x010000 (`AA 18 00 00 01 01 00 00 01 ...`),
+with the same metadata and count 1. No replacement writes accompany this test.
+
+The 0x010000 byte-addressed erase again damaged one animated image rather than
+the static slot-2 label, according to the user. This did not establish a block-1
+erase. A block-0-only restore follows to localize the damage. Another observed
+variable remains: Hub's single-image path sends keyboard E3 payload
+`00 00 00 01 00 00 (slot+1)` for its zero-based slot index, while these trials
+have held the last byte at 3. Testing value 2 separately is a source-backed
+setup hypothesis, not an established erase selector.
+
+After the byte-address test, rewriting only block 0 restored all three images
+(visually confirmed). Changing keyboard E3's final setup byte from 3 to 2
+without erasure left all three images working, also visually confirmed. The
+next controlled test repeats the 0x010000 byte-address/count-1 erase with that
+setup value 2 while holding the LCD metadata unchanged.
+
+### Keyboard setup value 2: possible selection-count effect
+
+After the setup-2 byte-addressed erase, the user reported only two apparent
+selections: a static slot-2 label and a white screen. The animated third image
+was not accessible or not observed. This differs from the earlier setup-only
+report that all three looked good; identical animated labels made counting
+selections ambiguous. Do not treat the earlier report as proof that E3 value 2
+preserves access to all three slots. Restoring E3 value 3 without erasure or
+image writes will test visibility separately from stored-image damage.
+
+### Four keyboard selections: visually confirmed
+
+At the user's request, keyboard E3's final value was changed to 4 without
+erasure or image writes; the LCD metadata still declared three images. The user
+confirmed four selectable positions: two broken screens, static slot 2, and
+animated slot 3. One damaged image already existed from the earlier erase.
+Four selectable positions do not yet prove four independently stored images,
+and conflict with treating the screen-info field value 3 as a hard limit.
+
+The next metadata-only test copies the valid slot-2 entry (block 1, 16,840 bytes)
+into the candidate fourth five-byte entry at offset 18. It retains the LCD
+image count 3 and keyboard count 4, changing only that candidate entry. No
+image writes or erase requests accompany this alias test.
+
+After the fourth-entry alias write, the user reported one static slot 2 and one
+animated slot 3 and confirmed four positions remained accessible. The two other
+positions were not explicitly redescribed. Playback through the candidate
+fourth entry is therefore not confirmed. The next metadata-only trial changes
+the LCD image count from 3 to 4 while retaining the candidate fourth entry,
+keyboard count 4, and all image data.
+
+With the LCD image count changed to 4, the user confirmed two static slot-2
+labels, one animated slot-3 screen, and one white screen. This establishes
+playback via the fourth five-byte table entry at offset 18 when both counts
+are 4. The fourth entry aliases block 1; four independently stored payloads
+have not yet been tested. The screen-info value 3 is therefore not a hard
+three-entry playback limit on this device under these conditions. A no-erase
+block-0-only restore to the original slot-1 label follows, retaining four entries.
+
+### Four independent images: visually confirmed
+
+A complete disposable set was initialized with keyboard E3 count 4, LCD image
+count 4, allocation count 4, and entries at blocks 0, 1, 2, and 3. The full-set
+erase request used index 0/count 5, followed by each payload at its own address.
+The original slot-1 and slot-2 labels and animated slot-3 image were retained;
+a new green slot-4 label was encoded locally. Payload sizes were 16,840, 16,840,
+57,889, and 16,840 bytes. The user confirmed all four displayed correctly.
+
+This establishes four independently stored and selectable images on this unit,
+not merely four pointers aliasing fewer images. Four is a tested lower bound,
+not a maximum. The screen-info field reporting 3 cannot be treated as a hard
+playback limit. The normal CLI still accepts three images; this four-image
+experiment used a separate bounded harness and has not generalized the CLI.
+
+Current experimental device state: four valid independent labels with metadata
+header `00 04 04`. Slot 4 no longer shares slot 2's storage. The default cached
+three-image manifest remains stale; it must not be used as an automatic restore
+of this four-image set. The experiment retained all four encoded payloads and
+a table/hash log separately. Nonzero-block targeted erasure remains unresolved.

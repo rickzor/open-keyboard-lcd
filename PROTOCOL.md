@@ -9,29 +9,44 @@ These are implementation notes from one RT82, not a firmware specification.
 - Activate the LCD: keyboard `AA E2`, then five `AA E0` handshakes. The `E2`
   query can return an `E0` response on the tested device.
 - Configuration read: `14`, offset zero, length 56. Payload byte 1 is GIF count;
-  byte 2 is total 64-KiB blocks. Three five-byte entries begin at byte 3:
+  byte 2 is total 64-KiB blocks. Five-byte entries begin at byte 3 (four entries have been hardware-tested):
   start block, reserved byte, then 24-bit little-endian image length.
 - Full-set sequence: `1B`; keyboard `E3` with GIF count; `14`; `15` at offsets
   0/56/112 with lengths 56/56/16; `16`; `18`; image chunks via `19`; `1A`.
 - `19` uses a 24-bit little-endian byte address and a chunk length.
-- Full-set erase starts at zero and uses total image blocks plus one, matching
-  the inspected Hub batch sequence. Delay is 500 ms per erased block.
+- Full-set erase requests index zero and count total image blocks plus one,
+  matching the inspected Hub batch sequence. The client waits 500 ms per
+  requested block; these parameters do not prove actual erase coverage.
 - A delayed `18` reply may arrive during the first write and is skipped while
   waiting for the expected write response.
 - Time synchronization uses `10`, `17` with decimal time digits, then `11`.
 
 ## Unresolved single-slot behavior
 
-Tests used a complete backup of three disposable images. Both nonzero block-index
-and byte-address encodings of `18`, with a count of one, damaged another slot.
-No-erase uploads into known blank space worked; same-address no-erase overwrites
-did not. These results do not prove every firmware operation is incapable of
-single-slot updates, but none has been established by this implementation.
+Controlled tests show that metadata allocation count affects the erase's observed
+reach. With that count set to 1, requested indices 2 and 3 affected the image at
+block 0 while higher-block images survived. Request count 7 also left images at
+blocks 3 and 6 intact. A changed-content replacement and repeat erase/write cycle
+at block 0 preserved adjacent images at blocks 1 and 2 (visually confirmed).
+The tested replacements were 16,840 bytes with unchanged slot entries and lengths.
+See [CAPABILITIES.md](CAPABILITIES.md) for the exact sequence and controls.
+
+This supports allocation-driven prefix erasure; it is not an exact firmware
+specification or a verified nonzero-block erase. Generic `upload --slot` remains
+disabled. The experimental append pool remains limited to its tested layout.
 
 The documented reads return screen information/configuration, not a supported
 backup of the GIF payload. Physical flash capacity and general safe allocation
 of unused space remain unknown. Do not use table matching as evidence that stored
 image data is undamaged.
+
+## Four-image playback
+
+Keyboard E3 setup count 4 and LCD metadata image count 4 enabled playback of
+four distinct payloads at blocks 0–3, visually confirmed. The fourth entry starts
+at metadata offset 18. The screen-info value 3 is not a hard playback limit on
+the tested unit. The standard CLI remains limited to three images pending
+integration; see CAPABILITIES.md for the experimental initialization sequence.
 
 ## Sources inspected
 
