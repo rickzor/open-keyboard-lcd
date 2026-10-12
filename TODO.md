@@ -43,3 +43,8 @@ nonzero-block targeted erasure is not.
   not read back as intended; increasing commit length to 128 did not fix it.
   Determine paging semantics with controlled metadata-only trials before
   claiming a hardware maximum or supporting arbitrary images past entry 10.
+
+- [ ] **Investigate the large resident-library transfer interruption.** Separate
+  address, allocation, pacing, and cumulative-byte limits using the controlled
+  trials in [the research note](research/large-upload-interruption.md). The
+  observed 11.27 MB acknowledged lower bound is not a proven capacity limit.

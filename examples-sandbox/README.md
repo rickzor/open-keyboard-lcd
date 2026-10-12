@@ -32,3 +32,22 @@ Annapurna, Mount Sir Donald, and Denali; the San Francisco and other city routes
 are retained. Custom coordinates can generate a new route on demand. Geometry,
 daily operation, and hardware playback need separate visual validation; it is
 not a surveyed city model.
+
+## Resident default GIF and notifications
+
+[notification-display](notification-display/README.md) is a separate linked
+experiment: upload one mountain flyover once, reserve block 0 for notifications,
+and return to the resident default 60 seconds after the latest notification.
+Switches change only the playback pointer; they do not reupload the default.
+Combined hardware behavior remains experimental.
+
+## Low-poly 3D weather display
+
+[weather-display](weather-display/README.md) is the new visual experiment:
+ten full-color weather loops on black, playing as one compact default reel.
+Each loop also fits individually into the shared notification controller's
+reserved first block. The weather state and assets are separate from Annapurna.
+
+## Background weather and notifications
+
+See [weather-notifications](weather-notifications/README.md) for the macOS login service, hourly weather, synced Google/iCloud calendar reminders, and local notification API.

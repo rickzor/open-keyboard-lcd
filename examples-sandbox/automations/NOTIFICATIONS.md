@@ -178,3 +178,10 @@ Tests exercise input validation, all presets, custom themes, priority, TTL,
 deduplication, bounded queues, HTTP authentication and origin rejection, restart
 restoration, duplicate delivery recovery, and Slack event mapping. Live app
 permissions/accounts and on-keyboard rendering are separate validation steps.
+# Linked resident-library experiment
+
+The separate [notification-display experiment](../notification-display/README.md) reuses
+this inbox and these card presets, reserves the first flash block for notices,
+and returns to the resident default mountain 60 seconds after the latest
+displayed notification. Run its worker instead of the automation worker when
+testing that storage model; both must not control the keyboard together.

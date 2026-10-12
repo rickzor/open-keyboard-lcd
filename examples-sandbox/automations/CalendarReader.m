@@ -41,7 +41,14 @@ int main(int argc, const char *argv[]) {
         NSError *error = nil;
         NSData *data = [NSJSONSerialization dataWithJSONObject:rows options:NSJSONWritingSortedKeys error:&error];
         if (!data) { fputs("Calendar serialization failed.\n", stderr); return 1; }
-        puts([[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding].UTF8String);
+        NSUInteger outputIndex = [args indexOfObject:@"--output"];
+        if (outputIndex != NSNotFound && outputIndex + 1 < args.count) {
+            NSString *path = args[outputIndex + 1];
+            if (![data writeToFile:path options:NSDataWritingAtomic error:&error]) return 1;
+            [[NSFileManager defaultManager] setAttributes:@{NSFilePosixPermissions:@0600} ofItemAtPath:path error:nil];
+        } else {
+            puts([[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding].UTF8String);
+        }
         return 0;
     }
 }

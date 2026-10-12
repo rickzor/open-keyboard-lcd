@@ -1,5 +1,8 @@
 # Sandbox: daily monochrome geographic flyover
 
+For a resident library that is uploaded once and temporarily interrupted by
+notifications, see the separate [notification-display experiment](../notification-display/README.md).
+
 **Experimental renderer, not a complete or surveyed 3D city model.** Generates
 one minute of white wireframe on pure black at 240×135 visible pixels, plus the
 QGIF format's padded row. Camera coordinates update along the very bottom.
