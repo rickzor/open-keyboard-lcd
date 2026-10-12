@@ -16,6 +16,7 @@ sys.path.insert(0,str(ROOT/'examples-sandbox/weather-display'))
 import live_weather as weather_ui
 from lcd_automations import due_meetings
 import calendar_app
+from display_sleep import DisplaySleep
 from notifications import Inbox, serve, notification_key
 from notification_cards import PRESETS, lines
 D=weather_ui.display
@@ -30,6 +31,21 @@ def card(item):
     y=101 if len(title_lines)>1 else 83
     d.text((27,y),weather_ui.clipped(d,item['message'],198,weather_ui.font(18)),font=weather_ui.font(18),fill=theme.get('muted','#d1c9ff'))
     return weather_ui.art.encode_frames([im],fps=1)
+
+def sleep_frames(mode):
+    if mode=='black':return [Image.new('RGB',(240,136),'black')]
+    frames=[]
+    for n in range(16):
+        im=Image.new('RGB',(240,136),'black');d=ImageDraw.Draw(im)
+        icon=weather_ui.art.frame('MOON',n,labels=False).crop((57,15,183,117)).resize((72,58),Image.Resampling.LANCZOS)
+        icon=icon.point(lambda v:int(v*.35));im.paste(icon,(70,33))
+        for i in range(3):
+            y=51-i*12-(n//4)%2
+            d.text((145+i*13,y),'z',font=weather_ui.font(12+i*2),fill='#34405b')
+        frames.append(im)
+    return frames
+
+def sleep_payload(mode):return weather_ui.art.encode_frames(sleep_frames(mode),fps=8)
 
 class Screen:
     def __init__(self,controller,folder,clock=time.time):
@@ -46,8 +62,22 @@ class Screen:
             self.controller.show_animation(data,'service:'+D.digest(data),persistent=True)
         else:
             with self.controller.transport() as keyboard:self.controller.checked(keyboard)
+    def set_sleep(self,asleep,payload):
+        if asleep==self.state.get('sleeping',False):return False
+        if asleep:
+            self.show(payload)
+        else:
+            path=self.folder/'weather.qgif'
+            if not path.exists():return False
+            self.show(path.read_bytes())
+        self.state.update(sleeping=asleep,until=0);self.save()
+        print('Display sleep animation active.' if asleep else 'Display awake; weather restored.',flush=True)
+        return True
     def tick(self,inbox):
         now=self.clock();item=inbox.peek(now)
+        if self.state.get('sleeping',False):
+            if item:inbox.acknowledge(item['id'])
+            return
         if item:
             key=notification_key(item)
             if key not in self.state['seen']:
@@ -108,6 +138,7 @@ def main():
     p.add_argument('--inbox',type=Path,default=ROOT/'state/weather-notifications/inbox')
     p.add_argument('--cache',type=Path,default=ROOT/'state/weather-notifications')
     p.add_argument('--seed-weather',type=Path)
+    p.add_argument('--display-config',type=Path,default=Path(__file__).with_name('display.json'))
     p.add_argument('--port',type=int,default=8765);a=p.parse_args()
     os.environ.pop('OPENAI_API_KEY',None)  # Not needed by this service or its child processes.
     a.cache.mkdir(parents=True,exist_ok=True,mode=0o700)
@@ -117,6 +148,12 @@ def main():
         # Refuse pending/foreign state before launching any producers.
         with controller.transport() as keyboard:controller.checked(keyboard)
         screen=Screen(controller,a.cache)
+        mode=json.loads(a.display_config.read_text()).get('sleep_mode','animation')
+        if mode not in ('animation','black','disabled'):raise ValueError('Invalid sleep_mode')
+        detector=DisplaySleep() if mode!='disabled' else None
+        sleeping_image=sleep_payload(mode) if detector else None
+        next_display_check=0
+        print('Display sleep mode: '+mode,flush=True)
         if not (a.cache/'weather.qgif').exists() and a.seed_weather:screen.weather(a.seed_weather.read_bytes())
         inbox=Inbox(a.inbox);stop=threading.Event();results=queue.Queue()
         with serve(inbox,a.port) as server:
@@ -130,6 +167,13 @@ def main():
                     try:
                         while True:screen.weather(results.get_nowait())
                     except queue.Empty:pass
+                    if time.monotonic()>=next_display_check:
+                        next_display_check=time.monotonic()+1
+                        asleep=detector.poll() if detector else False
+                        if asleep is not None and screen.set_sleep(asleep,sleeping_image):
+                            if not asleep:
+                                while (queued:=inbox.peek(time.time())) is not None:inbox.acknowledge(queued['id'])
+                            time.sleep(.25);continue
                     screen.tick(inbox);time.sleep(.25)
             finally:stop.set();server.shutdown()
 if __name__=='__main__':main()

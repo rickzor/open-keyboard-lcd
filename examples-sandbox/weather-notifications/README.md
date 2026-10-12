@@ -74,3 +74,27 @@ Source, tests, and example configuration are shareable; runtime state, calendar
 results, inbox tokens, and logs are excluded from Git. Status output uses a strict
 allowlist and never dumps launchd environment variables. The LaunchAgent supplies
 an empty API-key variable; this service does not use an OpenAI API key.
+
+## Follow the Mac display's sleep state
+
+`display.json` selects `sleep_mode`: `animation` (default, dim moon and floating
+z's), `black` (a black image), or `disabled`. Restart the service after changing
+this file. A black image is not a verified backlight/power-off command.
+
+The worker polls macOS display power once a second and requires a stable state
+for three seconds. All online displays must sleep before the keyboard sleeps;
+any awake display restores the newest cached weather and clears the reminder
+timer. Notifications received during sleep are discarded, including queued
+notices when waking, so old reminders do not replace the returning weather.
+Weather can refresh its cache while the displays are off. No screen capture or
+Accessibility permission is required. Unknown/empty display queries preserve
+the last state rather than guessing that the displays are asleep.
+
+This follows display power, not screen locking or a screen saver. It uses Apple's
+[CGDisplayIsAsleep](https://developer.apple.com/documentation/coregraphics/cgdisplayisasleep(_:))
+and [CGGetOnlineDisplayList](https://developer.apple.com/documentation/coregraphics/cggetonlinedisplaylist(_:_:_:)).
+Each transition uses the existing block-0 updater, so changes include USB upload
+latency. If the entire Mac sleeps or USB power is removed before an upload can
+finish, a sleep animation cannot be guaranteed; the normal interrupted-write
+checks still apply. Software transitions and payload sizes are tested; an actual
+screen-off/wake cycle still needs observation on the connected hardware.

@@ -28,4 +28,25 @@ class ServiceTests(unittest.TestCase):
    for ident in ['one','two']:
     inbox.submit({'id':ident,'title':'Notice','duration':60},now=now[0]);screen.tick(inbox);now[0]+=30
    self.assertEqual(screen.state['until'],190)
+ def test_sleep_suppresses_notices_and_returns_latest_weather(self):
+  with tempfile.TemporaryDirectory() as tmp:
+   screen=s.Screen(SimpleNamespace(state={}),Path(tmp),lambda:100);screen.show=Mock()
+   inbox=s.Inbox(Path(tmp)/'inbox');screen.weather(b'old')
+   self.assertTrue(screen.set_sleep(True,b'sleep'))
+   self.assertFalse(screen.set_sleep(True,b'sleep'))
+   inbox.submit({'id':'asleep','title':'Notice'},now=100);screen.tick(inbox)
+   self.assertIsNone(inbox.peek(100));self.assertEqual(screen.show.call_count,1)
+   screen.weather(b'fresh')
+   restarted=s.Screen(SimpleNamespace(state={}),Path(tmp),lambda:100);restarted.show=Mock()
+   self.assertTrue(restarted.set_sleep(False,None));restarted.show.assert_called_once_with(b'fresh')
+   self.assertEqual(restarted.state['until'],0)
+ def test_sleep_payloads_fit_block(self):
+  for mode in ('animation','black'):self.assertLessEqual(len(s.sleep_payload(mode)),65536)
+ def test_sleep_detector_debounces_and_rejects_unknown(self):
+  detector=s.DisplaySleep.__new__(s.DisplaySleep);now=[0]
+  detector.clock=lambda:now[0];detector.settle=3;detector.candidate=None;detector.since=0
+  detector.read=Mock(return_value=True)
+  self.assertIsNone(detector.poll());now[0]=3;self.assertTrue(detector.poll())
+  detector.read.return_value=None;self.assertIsNone(detector.poll())
+  detector.read.return_value=False;self.assertIsNone(detector.poll());now[0]=6;self.assertFalse(detector.poll())
 if __name__=='__main__':unittest.main()
